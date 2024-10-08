@@ -10,6 +10,8 @@ API_KEY = os.getenv("API_KEY")
 
 client = OpenAI(api_key=API_KEY)
 
+#TODO Add time comparison
+
 class ConversationLayer:
     def __init__(self, system_message: str):
         self.messages: List[Dict[str, str]] = [{"role": "system", "content": system_message}]
