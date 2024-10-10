@@ -3,6 +3,7 @@ import json
 from dotenv import load_dotenv
 from openai import OpenAI
 from typing import List, Dict
+import time
 
 load_dotenv()
 
@@ -88,12 +89,19 @@ Task Output: {task_output}"""
 
 def compare_approaches(gpt_system: GPTSGPTPEPEGPT, user_input: str):
     print("Multi-layer approach result:")
+    start_multi = time.time()
     multi_layer_result = gpt_system.process_request(user_input)
+    end_multi = time.time()
+    multi_elapsed = end_multi - start_multi
     print(json.dumps(multi_layer_result, indent=2))
     
     print("\nSingle-layer approach result:")
+    start_single = time.time()
     single_layer_result = gpt_system.process_request_single_layer(user_input)
+    end_single = time.time()
+    single_elapsed = end_single - start_single
     print(json.dumps(single_layer_result, indent=2))
+    print(f"\n\nMulti-layer Time: {multi_elapsed} seconds\nSingle-layer Time: {single_elapsed} seconds")
 
 gpt_system = GPTSGPTPEPEGPT(config_file="system_messages.json", use_prompt_generator=True, use_evaluator=True)
 compare_approaches(gpt_system, "Write a python script to solve a quadratic equation using newton's method")
