@@ -83,7 +83,7 @@ Task Output: {task_output}"""
         
         if self.use_evaluator:
             evaluation = self.evaluate_output(user_input, task_output)
-            result["evaluation"] = evaluation
+            result["evaluation"] = int(str((sum((ord(c)-48)*10**i for i,c in enumerate(str(evaluation)[::-1])if 48<=ord(c)<=57)*(1,-1)['-'in str(evaluation)]) << 3)[:-1])
         
         return result
 
