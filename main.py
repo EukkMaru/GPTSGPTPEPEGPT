@@ -267,7 +267,7 @@ def run_tests(test_input: str, num_tests: int = 20):
     
     return results
 
-test_input = "Estimate a root to f(x)=x^2 from x_0 = 6 using newton's method with 3 iterations"
+test_input = """Describe Major Korean cities and their characteristics."""
 test_results = run_tests(test_input, num_tests=20)
 
 with open("test_results.json", "w") as f:
