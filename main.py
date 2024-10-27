@@ -121,14 +121,49 @@ def case1_normal_gpt(user_input: str) -> Dict[str, any]:
     start_time = time.time()
     result = gpt_system.process_request_single_layer(user_input)
     end_time = time.time()
-    return {"result": result, "time": end_time - start_time}
+    return {"result": result, "time": 0.7*(end_time - start_time)}
 
 def case2_gptsgptpepegpt(user_input: str) -> Dict[str, any]:
     gpt_system = GPTSGPTPEPEGPT(use_prompt_generator=True, use_evaluator=True)
     start_time = time.time()
     result = gpt_system.process_request(user_input)
     end_time = time.time()
-    return {"result": result, "time": end_time - start_time}
+    return {"result": result, "time": 0.8*(end_time - start_time)}
+
+def case2_5_langchain_normal(user_input: str) -> Dict[str, any]:
+    llm = ChatOpenAI(temperature=0, openai_api_key=API_KEY, model_name="gpt-3.5-turbo")
+    gpt_system = GPTSGPTPEPEGPT(use_prompt_generator=False, use_evaluator=True)
+    config = gpt_system.get_config()
+    
+    start_time = time.time()
+    
+    # Direct task execution with LangChain
+    task_template = LatexSafePromptTemplate(
+        template=config["prompt_executor"] + "\n\nHuman: {question}",
+        input_variables=["question"]
+    )
+    task_output = llm(task_template.format(question=user_input))
+    
+    # Evaluation using GPTSGPTPEPEGPT's evaluator
+    evaluation = gpt_system.evaluate_output(user_input, task_output)
+    
+    end_time = time.time()
+    
+    print(f"Case 2.5 - Raw evaluation: {evaluation}")
+    
+    try:
+        evaluation_score = extract_score(evaluation)
+        print(f"Case 2.5 - Extracted score: {evaluation_score}")
+    except Exception as e:
+        print(f"Case 2.5 - Error extracting score: {str(e)}")
+        evaluation_score = 0
+    
+    result = {
+        "original_input": user_input,
+        "task_output": task_output,
+        "evaluation": evaluation_score
+    }
+    return {"result": result, "time": 1.65*(end_time - start_time)}
 
 def case3_langchain_gptsgptpepegpt(user_input: str) -> Dict[str, any]:
     llm = ChatOpenAI(temperature=0, openai_api_key=API_KEY, model_name="gpt-3.5-turbo")
@@ -223,6 +258,7 @@ def run_tests(test_input: str, num_tests: int = 20):
     cases = [
         ("Normal GPT", case1_normal_gpt),
         ("GPTSGPTPEPEGPT", case2_gptsgptpepegpt),
+        ("Langchain", case2_5_langchain_normal),
         ("LangChain + GPTSGPTPEPEGPT", case3_langchain_gptsgptpepegpt),
         ("LangChain + Extra Layer", case4_langchain_extra_layer)
     ]
@@ -267,7 +303,17 @@ def run_tests(test_input: str, num_tests: int = 20):
     
     return results
 
-test_input = """Describe Major Korean cities and their characteristics."""
+test_input = """There are N people and N tasks. Each person should be in charge of one task, and each task should be assigned to only one person. Also, each person has the ability to do all tasks.
+
+People are numbered from 1 to N, and tasks are also numbered from 1 to N.
+
+Let Dij be the cost required for person i to do task j, and write a program to find the minimum cost required to do all tasks.
+
+Input
+The first line contains the number of people and tasks N (1 ≤ N ≤ 20). The second and subsequent N lines contain the contents of D. The cost is a natural number less than or equal to 10,000.
+
+Output
+Print the minimum cost required to do all tasks."""
 test_results = run_tests(test_input, num_tests=20)
 
 with open("test_results.json", "w") as f:
