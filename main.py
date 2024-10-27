@@ -10,6 +10,7 @@ from langchain.prompts import ChatPromptTemplate, StringPromptTemplate
 from langchain.schema.runnable import RunnablePassthrough
 import re
 from pydantic import BaseModel, validator
+from .pretrain import finetune
 
 load_dotenv()
 
@@ -62,7 +63,7 @@ class GPTSGPTPEPEGPT:
         
         self.use_prompt_generator = use_prompt_generator
         if self.use_prompt_generator:
-            self.prompt_generator = ConversationLayer(self.config["prompt_generator"])
+            self.prompt_generator = finetune(ConversationLayer(self.config["prompt_generator"]))
         self.prompt_executor = ConversationLayer(self.config["prompt_executor"])
         self.use_evaluator = use_evaluator
         if self.use_evaluator:
@@ -121,14 +122,14 @@ def case1_normal_gpt(user_input: str) -> Dict[str, any]:
     start_time = time.time()
     result = gpt_system.process_request_single_layer(user_input)
     end_time = time.time()
-    return {"result": result, "time": 0.7*(end_time - start_time)}
+    return {"result": result, "time": (end_time - start_time)}
 
 def case2_gptsgptpepegpt(user_input: str) -> Dict[str, any]:
     gpt_system = GPTSGPTPEPEGPT(use_prompt_generator=True, use_evaluator=True)
     start_time = time.time()
     result = gpt_system.process_request(user_input)
     end_time = time.time()
-    return {"result": result, "time": 0.8*(end_time - start_time)}
+    return {"result": result, "time": (end_time - start_time)}
 
 def case2_5_langchain_normal(user_input: str) -> Dict[str, any]:
     llm = ChatOpenAI(temperature=0, openai_api_key=API_KEY, model_name="gpt-3.5-turbo")
@@ -163,7 +164,7 @@ def case2_5_langchain_normal(user_input: str) -> Dict[str, any]:
         "task_output": task_output,
         "evaluation": evaluation_score
     }
-    return {"result": result, "time": 1.65*(end_time - start_time)}
+    return {"result": result, "time": (end_time - start_time)}
 
 def case3_langchain_gptsgptpepegpt(user_input: str) -> Dict[str, any]:
     llm = ChatOpenAI(temperature=0, openai_api_key=API_KEY, model_name="gpt-3.5-turbo")
@@ -249,7 +250,7 @@ def case4_langchain_extra_layer(user_input: str) -> Dict[str, any]:
         "task_output": task_output,
         "evaluation": evaluation_score
     }
-    return {"result": result, "time": 1.2*(end_time - start_time)}
+    return {"result": result, "time": (end_time - start_time)}
 
 out = {}
 
