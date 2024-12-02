@@ -1,15 +1,21 @@
 import json
 import time
 import logging
+import os
 from isolated import run_gptsgptpepegpt
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def load_ruleset(filename: str) -> str:
-    with open(filename, "r") as f:
-        ruleset = f.read()
-    logging.info(f"Ruleset loaded from {filename}")
-    return ruleset
+def load_ruleset(directory: str) -> str:
+    ruleset_blob = ""
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".txt"):
+                file_path = os.path.join(root, file)
+                with open(file_path, "r") as f:
+                    ruleset_blob += f.read() + "\n"
+                logging.info(f"Ruleset loaded from {file_path}")
+    return ruleset_blob
 
 def get_user_task() -> str:
     return input("Enter the task you want to evaluate against the ruleset: ")
@@ -20,8 +26,8 @@ def write_result_to_file(result: dict, filename: str = "gptsgptpepegpt_result.js
     logging.info(f"Result written to {filename}")
 
 def main():    
-    ruleset_filename = "ruleset.txt"
-    ruleset = load_ruleset(ruleset_filename)
+    ruleset_directory = "ruleset"
+    ruleset = load_ruleset(ruleset_directory)
     
     user_task = get_user_task()
     
