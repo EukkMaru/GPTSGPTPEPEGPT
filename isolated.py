@@ -12,7 +12,6 @@ API_KEY = os.getenv("API_KEY")
 if not API_KEY:
     raise ValueError("API key not found. Please set the API_KEY environment variable.")
 
-# client = OpenAI(api_key=API_KEY)
 
 class GPTSGPTPEPEGPT:
     def __init__(self, config_file: str = "system_messages.json", use_prompt_generator: bool = True, use_evaluator: bool = True):

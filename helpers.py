@@ -32,7 +32,6 @@ class ConversationLayer:
         self.messages.append({"role": role, "content": content})
     
     def get_response(self, model: str = "gpt-3.5-turbo") -> str:
-        # Placeholder for the actual API call to OpenAI, assuming client is globally accessible
         chat_completion = client.chat.completions.create(
             model=model,
             messages=self.messages
